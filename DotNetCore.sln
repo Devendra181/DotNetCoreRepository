@@ -119,7 +119,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mongodb", "mongodb", "{3250
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mongodb-init", "mongodb-init", "{37FA1B61-3E63-4297-8E00-87A75D10FFD8}"
 	ProjectSection(SolutionItems) = preProject
-		D:\.Net&C#\.Net\Microservices\Dot-NET-Microservices-with-Azure-and-AKS-main\12. AKS\05. Pushing Microservice Images to ACR\mongodb\mongodb-init\init.js = D:\.Net&C#\.Net\Microservices\Dot-NET-Microservices-with-Azure-and-AKS-main\12. AKS\05. Pushing Microservice Images to ACR\mongodb\mongodb-init\init.js
+		..\.Net&C#\.Net\Microservices\Dot-NET-Microservices-with-Azure-and-AKS-main\12. AKS\05. Pushing Microservice Images to ACR\mongodb\mongodb-init\init.js = ..\.Net&C#\.Net\Microservices\Dot-NET-Microservices-with-Azure-and-AKS-main\12. AKS\05. Pushing Microservice Images to ACR\mongodb\mongodb-init\init.js
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mysql", "mysql", "{7F912975-1CDF-4112-B7F5-6ED20D4B6692}"
@@ -166,6 +166,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aks", "aks", "{D604CFE5-AE9
 		eCommerce\aks\users-microservice-deployment.yaml = eCommerce\aks\users-microservice-deployment.yaml
 		eCommerce\aks\users-microservice.service.yaml = eCommerce\aks\users-microservice.service.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASPNETCoreIdentityDemo", "..\SmartCertify\API\ASPNETCoreIdentityDemo\ASPNETCoreIdentityDemo.csproj", "{9702D937-6A77-406D-878D-379402016F6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -321,6 +323,10 @@ Global
 		{3917994C-32DB-4E38-8A03-83D4607512FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3917994C-32DB-4E38-8A03-83D4607512FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3917994C-32DB-4E38-8A03-83D4607512FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9702D937-6A77-406D-878D-379402016F6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9702D937-6A77-406D-878D-379402016F6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9702D937-6A77-406D-878D-379402016F6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9702D937-6A77-406D-878D-379402016F6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -382,6 +388,7 @@ Global
 		{BD701F60-E1E5-4823-801D-F51DA737213C} = {7F912975-1CDF-4112-B7F5-6ED20D4B6692}
 		{6EE5843E-452E-4788-BD15-2E2FD8C0E19E} = {B9F46827-C0F7-40F1-B537-A655E2F9D4DC}
 		{D604CFE5-AE93-4DBA-BBE8-91731B72D64F} = {2F6BB3A8-4462-4DC2-B2D2-0CA05419EF5E}
+		{9702D937-6A77-406D-878D-379402016F6E} = {6403A928-7745-425F-A2E8-52731AD90E99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1DC55F9E-2862-47D4-99EB-3D9A75C58EC7}
