@@ -169,6 +169,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aks", "aks", "{D604CFE5-AE9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASPNETCoreIdentityDemo", "..\SmartCertify\API\ASPNETCoreIdentityDemo\ASPNETCoreIdentityDemo.csproj", "{9702D937-6A77-406D-878D-379402016F6E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CS", "CS", "{ADECECB4-AA12-45C2-BB24-23BD99E1E7FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
