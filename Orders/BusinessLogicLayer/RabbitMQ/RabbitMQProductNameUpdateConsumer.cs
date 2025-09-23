@@ -31,8 +31,8 @@ public class RabbitMQProductNameUpdateConsumer : IDisposable, IRabbitMQProductNa
         string hostName = _configuration["RabbitMQ_HostName"]!;
         string userName = _configuration["RabbitMQ_UserName"]!;
         string password = _configuration["RabbitMQ_Password"]!;
-        string port = _configuration["RabbitMQ_Port"]!;
-        //string port = System.Environment.GetEnvironmentVariable("RabbitMQ_Port");
+        //string port = _configuration["RabbitMQ_Port"]!;
+        string port = System.Environment.GetEnvironmentVariable("RabbitMQ_Port");
         _logger = logger;
 
         ConnectionFactory connectionFactory = new ConnectionFactory()
