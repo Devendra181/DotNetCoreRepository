@@ -1,10 +1,12 @@
-using Mango.Services.CouponAPI.Data;
-using Mango.Services.CouponAPI.Extensions;
+using Mango.Services.ProductAPI.Data;
+using Mango.Services.ProductAPI.Extensions;
+using Mango.Services.ProductAPI.Services;
+using Mango.Services.ProductAPI.Services.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
-namespace Mango.Services.CouponAPI
+namespace Mango.Services.ProductAPI
 {
     public class Program
     {
@@ -14,18 +16,18 @@ namespace Mango.Services.CouponAPI
 
             // Add services to the container.
 
+            builder.Services.AddControllers();
+
             builder.Services.AddDbContext<AppDbContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
-            //IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
-            //builder.Services.AddSingleton(mapper);
-            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            builder.Services.AddScoped<IProductService, ProductService>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(option =>
@@ -52,10 +54,8 @@ namespace Mango.Services.CouponAPI
                     }
                 });
             });
-
-
-
             builder.AddAppAuthetication();
+
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
@@ -72,11 +72,8 @@ namespace Mango.Services.CouponAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
-
             app.MapControllers();
-
             ApplyMigration();
-
             app.Run();
 
             void ApplyMigration()
