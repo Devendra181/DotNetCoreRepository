@@ -19,15 +19,20 @@ namespace Mango.Web
             builder.Services.AddHttpClient();
             // coupon service will be using http client
             builder.Services.AddHttpClient<ICouponService, CouponService>();
+            builder.Services.AddHttpClient<IAuthService, AuthService>();
+            builder.Services.AddHttpClient<IProductService, ProductService>();
+
             //Static Data
             SD.CouponAPIBase = builder.Configuration["ServiceUrls:CouponAPI"]!;
             SD.AuthAPIBase = builder.Configuration["ServiceUrls:AuthAPI"]!;
+            SD.ProductAPIBase = builder.Configuration["ServiceUrls:ProductAPI"]!;
 
             //Regirstering services
             builder.Services.AddScoped<IBaseService, BaseService>();
             builder.Services.AddScoped<ICouponService, CouponService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+            builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
