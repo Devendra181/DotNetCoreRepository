@@ -1,0 +1,15 @@
+﻿using Catalog.Core.Entities;
+
+namespace Catalog.Core.Repositories
+{
+    public interface IProductRepository
+    {
+        Task<IEnumerable<Product>> GetAllProducts();   
+        Task<Product> GetProduct(string id);
+        Task<IEnumerable<Product>> GetProductsByName(string name);
+        Task<IEnumerable<Product>> GetProductsByBrand(string brandName);
+        Task<Product> CreateProduct(Product product);
+        Task<bool> UpdateProduct(Product id);
+        Task<bool> DeleteProduct(string id);
+    }
+}
