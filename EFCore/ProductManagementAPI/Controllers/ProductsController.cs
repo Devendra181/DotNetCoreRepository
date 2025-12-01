@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ProductManagementAPI.Data;
 using ProductManagementAPI.Models;
 
@@ -7,94 +6,198 @@ namespace ProductManagementAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ProductsController(AppDbContext context)
+        public ProductController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/products
-        // Retrieve all products
-        [HttpGet]
-        public async Task<ActionResult<List<Product>>> GetAll()
+        // ------------------- 1. ADDED STATE -------------------
+        [HttpPost("AddProduct")]
+        public IActionResult AddProduct([FromBody] Product product)
         {
-            // Fetch all products from database
-            var products = await _context.Products.ToListAsync();
+            /*
+             * Step 1: When a new entity (product) is created and added using .Add(),
+             *         EF Core marks it as 'Added' in the ChangeTracker.
+             * Step 2: When SaveChanges() is called, EF Core executes an INSERT statement.
+             * Step 3: After successful save, EF Core automatically changes its state to 'Unchanged'
+             *         because now it matches the database record.
+             */
 
-            // Return HTTP 200 OK with data
-            return Ok(products);
+            _context.Products.Add(product); // State => Added
+            var beforeSave = _context.Entry(product).State.ToString(); // "Added"
+
+            _context.SaveChanges(); // Executes INSERT
+
+            var afterSave = _context.Entry(product).State.ToString(); // "Unchanged"
+
+            return Ok(new
+            {
+                Message = "New Product Added Successfully",
+                StateBeforeSave = beforeSave,
+                StateAfterSave = afterSave
+            });
         }
 
-        // GET: api/products/{id}
-        // Retrieve product by ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetById(int id)
+        // ------------------- 2. UNCHANGED STATE -------------------
+        [HttpGet("GetProduct/{id}")]
+        public IActionResult GetProduct(int id)
         {
-            // Find product by primary key
-            var product = await _context.Products.FindAsync(id);
+            /*
+             * Step 1: When you fetch an entity using Find() or FirstOrDefault(),
+             *         EF Core starts tracking it immediately.
+             * Step 2: Since the entity is freshly loaded and no property has changed yet,
+             *         its state is 'Unchanged'.
+             * Step 3: If you later modify it, the state will automatically become 'Modified'.
+             */
+
+            var product = _context.Products.FirstOrDefault(p => p.Id == id);
 
             if (product == null)
-                return NotFound(new { Message = $"Product with ID {id} not found." });
+                return NotFound("Product not found.");
 
-            return Ok(product);
+            var stateAfterFetch = _context.Entry(product).State.ToString(); // "Unchanged"
+
+            return Ok(new
+            {
+                product,
+                StateAfterFetching = stateAfterFetch
+            });
         }
 
-        // POST: api/products
-        // Create new product
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Product product)
+        // ------------------- 3. MODIFIED STATE -------------------
+        [HttpPut("UpdateProduct/{id}")]
+        public IActionResult UpdateProduct(int id, [FromBody] Product updatedProduct)
         {
+            /*
+             * Step 1: Retrieve an existing product → EF Core sets its state as 'Unchanged'.
+             * Step 2: When you modify one or more properties (like Price or Stock),
+             *         EF Core automatically changes the entity's state to 'Modified'.
+             * Step 3: When SaveChanges() is called, EF Core executes an UPDATE statement.
+             * Step 4: After saving successfully, EF Core resets its state back to 'Unchanged'.
+             */
+
+            var product = _context.Products.Find(id);
             if (product == null)
-                return BadRequest(new { Message = "Invalid product data." });
+                return NotFound("Product not found.");
 
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            var stateAfterFetch = _context.Entry(product).State.ToString(); // "Unchanged"
 
-            // Return 201 Created with location header
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
-        }
-
-        // PUT: api/products/{id}
-        // Update existing product
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Product updatedProduct)
-        {
-            if (id != updatedProduct.Id)
-                return BadRequest(new { Message = "Product ID mismatch." });
-
-            // Check if product exists
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return NotFound(new { Message = $"Product with ID {id} not found." });
-
-            // Update fields
-            product.Name = updatedProduct.Name;
+            // Modify one or more properties
             product.Price = updatedProduct.Price;
             product.Stock = updatedProduct.Stock;
-            product.Description = updatedProduct.Description;
 
-            _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var stateAfterModify = _context.Entry(product).State.ToString(); // "Modified"
 
-            return Ok(new { Message = "Product updated successfully.", Product = product });
+            _context.SaveChanges(); // Executes UPDATE command
+
+            var stateAfterSave = _context.Entry(product).State.ToString(); // "Unchanged" again
+
+            return Ok(new
+            {
+                Message = "Product Updated Successfully",
+                StateAfterFetching = stateAfterFetch,
+                StateAfterModification = stateAfterModify,
+                StateAfterSaveChanges = stateAfterSave
+            });
         }
 
-        // DELETE: api/products/{id}
-        // Delete existing product
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        // ------------------- 4. DELETED STATE -------------------
+        [HttpDelete("DeleteProduct/{id}")]
+        public IActionResult DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            /*
+             * Step 1: When you fetch an entity, EF Core marks it as 'Unchanged'.
+             * Step 2: When you call .Remove(), EF Core marks it as 'Deleted'.
+             * Step 3: When SaveChanges() is called, EF Core executes a DELETE SQL command.
+             * Step 4: After deletion, EF Core changes its state to 'Detached'
+             *         because it no longer exists in the database.
+             */
+
+            var product = _context.Products.Find(id);
             if (product == null)
-                return NotFound(new { Message = $"Product with ID {id} not found." });
+                return NotFound("Product not found.");
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            var stateAfterFetch = _context.Entry(product).State.ToString(); // "Unchanged"
 
-            return Ok(new { Message = "Product deleted successfully." });
+            _context.Products.Remove(product); // Marks entity as Deleted
+            var stateAfterRemove = _context.Entry(product).State.ToString(); // "Deleted"
+
+            _context.SaveChanges(); // Executes DELETE command
+            var stateAfterSave = _context.Entry(product).State.ToString(); // "Detached" (no longer tracked)
+
+            return Ok(new
+            {
+                Message = "Product Deleted Successfully",
+                StateAfterFetching = stateAfterFetch,
+                StateAfterRemove = stateAfterRemove,
+                StateAfterSaveChanges = stateAfterSave
+            });
+        }
+
+        // ------------------- 5. DETACHED STATE -------------------
+        [HttpGet("DetachedExample")]
+        public IActionResult DetachedExample()
+        {
+            /*
+             * Step 1: When you create a new entity instance manually and do not attach or add it to the DbContext,
+             *         EF Core has no tracking information for it → its state is 'Detached'.
+             * Step 2: Detached means EF Core won’t insert, update, or delete it unless you explicitly attach it.
+             */
+
+            var product = new Product
+            {
+                Id = 100,
+                Name = "Portable Charger",
+                Price = 2500,
+                Stock = 15
+            };
+
+            var initialState = _context.Entry(product).State.ToString(); // "Detached"
+
+            // Now attach it manually (simulate connecting it to context)
+            _context.Attach(product);
+            var stateAfterAttach = _context.Entry(product).State.ToString(); // "Unchanged"
+
+            // Modify property to see state transition
+            product.Price = 3000;
+            var stateAfterModification = _context.Entry(product).State.ToString(); // "Modified"
+
+            _context.SaveChanges(); // Executes UPDATE command if entity exists
+            var stateAfterSave = _context.Entry(product).State.ToString(); // "Unchanged" again
+
+            return Ok(new
+            {
+                Message = "Detached Entity Demonstration Complete",
+                InitialState = initialState,
+                AfterAttach = stateAfterAttach,
+                AfterModification = stateAfterModification,
+                AfterSaveChanges = stateAfterSave
+            });
+        }
+
+        // ------------------- 6. SHOW ALL TRACKED ENTITIES -------------------
+        [HttpGet("ShowTrackedEntities")]
+        public IActionResult ShowTrackedEntities()
+        {
+            /*
+             * Displays all entities currently tracked by the DbContext's ChangeTracker,
+             * along with their entity type and current state.
+             * This helps visualize which entities EF Core is keeping in memory and how it perceives them.
+             */
+
+            var trackedEntities = _context.ChangeTracker.Entries()
+                .Select(e => new
+                {
+                    EntityName = e.Entity.GetType().Name,
+                    CurrentState = e.State.ToString()
+                }).ToList();
+
+            return Ok(trackedEntities);
         }
     }
 }
+
