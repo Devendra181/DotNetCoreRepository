@@ -12,7 +12,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Orders/OrdersMicroservice.API/OrdersMicroservice.API.csproj", "Orders/OrdersMicroservice.API/"]
+COPY ["/Microservices/eCommerce/Orders/OrdersMicroservice.API/OrdersMicroservice.API.csproj", "Orders/OrdersMicroservice.API/"]
 RUN dotnet restore "./Orders/OrdersMicroservice.API/OrdersMicroservice.API.csproj"
 COPY . .
 WORKDIR "/src/Orders/OrdersMicroservice.API"

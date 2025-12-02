@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ProductsMicroService.API/ProductsMicroService.API.csproj", "ProductsMicroService.API/"]
-RUN dotnet restore "./ProductsMicroService.API/ProductsMicroService.API.csproj"
+COPY ["/Microservices/eCommerce/Products/ProductsMicroService.API/ProductsMicroService.API.csproj", "Products/ProductsMicroService.API/"]
+RUN dotnet restore "./Products/ProductsMicroService.API/ProductsMicroService.API.csproj"
 COPY . .
-WORKDIR "/src/ProductsMicroService.API"
+WORKDIR "/src/Products/ProductsMicroService.API"
 RUN dotnet build "./ProductsMicroService.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
