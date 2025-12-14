@@ -175,6 +175,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "Microser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductsMicroService.API", "Microservices\eCommerce\Products\ProductsMicroService.API\ProductsMicroService.API.csproj", "{55707FDA-D383-8160-7CC2-AFC7ACA0BDC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceApp.RelationShips", "EFCore\ECommerceApp\ECommerceApp.RelationShips.csproj", "{54FB588C-22E7-4BDF-AFFD-A4F7734C3FFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -313,6 +315,10 @@ Global
 		{55707FDA-D383-8160-7CC2-AFC7ACA0BDC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55707FDA-D383-8160-7CC2-AFC7ACA0BDC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55707FDA-D383-8160-7CC2-AFC7ACA0BDC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54FB588C-22E7-4BDF-AFFD-A4F7734C3FFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54FB588C-22E7-4BDF-AFFD-A4F7734C3FFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54FB588C-22E7-4BDF-AFFD-A4F7734C3FFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54FB588C-22E7-4BDF-AFFD-A4F7734C3FFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -374,6 +380,7 @@ Global
 		{14D5046B-F67F-BF14-27A0-D7DB2276FE3E} = {B6B3D6FA-B3BC-42D4-903B-B844AEF1891C}
 		{75BF6B06-A97D-A7A1-05DB-E45547091480} = {B6B3D6FA-B3BC-42D4-903B-B844AEF1891C}
 		{55707FDA-D383-8160-7CC2-AFC7ACA0BDC0} = {B6B3D6FA-B3BC-42D4-903B-B844AEF1891C}
+		{54FB588C-22E7-4BDF-AFFD-A4F7734C3FFF} = {2FC31648-06FF-4872-90DB-4C279915D6EB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1DC55F9E-2862-47D4-99EB-3D9A75C58EC7}
