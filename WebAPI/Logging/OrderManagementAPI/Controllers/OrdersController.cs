@@ -12,14 +12,11 @@ namespace OrderManagementAPI.Controllers
     {
         private readonly ILogger<OrdersController> _logger;
         private readonly IOrderService _orderService;
-        private readonly ICorrelationIdAccessor _correlationIdAccessor;
         public OrdersController(ILogger<OrdersController> logger,
-                    IOrderService orderService,
-                    ICorrelationIdAccessor correlationIdAccessor)
+                    IOrderService orderService)
         {
             _logger = logger;
             _orderService = orderService;
-            _correlationIdAccessor = correlationIdAccessor;
             _logger.LogInformation("OrdersController instantiated.");
         }
 
@@ -28,23 +25,18 @@ namespace OrderManagementAPI.Controllers
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO dto)
         {
             var stopwatch = Stopwatch.StartNew();
-            // Retrieve the current CorrelationId (if any) using the shared helper.
-            var correlationId = _correlationIdAccessor.GetCorrelationId();
 
             // Safely serialize the incoming DTO for logging
             var requestJson = dto is null
                 ? "null"
-                : JsonSerializer.Serialize(dto, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
+                : JsonSerializer.Serialize(dto);
 
-            _logger.LogInformation($"[{correlationId}] HTTP POST /api/orders called. Payload: {requestJson}");
+            _logger.LogInformation($"HTTP POST /api/orders called. Payload: {dto}");
 
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning($"[{correlationId}] Model validation failed for CreateOrder request.");
+                _logger.LogWarning($"Model validation failed for CreateOrder request.");
                 return BadRequest(ModelState);
             }
 
@@ -60,20 +52,20 @@ namespace OrderManagementAPI.Controllers
                 });
 
                 _logger.LogInformation(
-                    $"[{correlationId}] Order {created.Id} created successfully via API in {stopwatch.ElapsedMilliseconds} ms. Response: {responseJson}");
+                    $"Order {created.Id} created successfully via API in {stopwatch.ElapsedMilliseconds} ms. Response: {responseJson}");
 
                 return CreatedAtAction(nameof(GetOrderById), new { id = created.Id }, created);
             }
             catch (ArgumentException ex)
             {
                 stopwatch.Stop();
-                _logger.LogWarning($"[{correlationId}] Validation error while creating order: {ex.Message}. Time taken: {stopwatch.ElapsedMilliseconds} ms.");
+                _logger.LogWarning($"Validation error while creating order: {ex.Message}. Time taken: {stopwatch.ElapsedMilliseconds} ms.");
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
                 stopwatch.Stop();
-                _logger.LogError($"[{correlationId}] Unexpected error while creating order: {ex.Message}. Time taken: {stopwatch.ElapsedMilliseconds} ms.");
+                _logger.LogError($"Unexpected error while creating order: {ex.Message}. Time taken: {stopwatch.ElapsedMilliseconds} ms.");
                 return StatusCode(500, new { message = "An unexpected error occurred." });
             }
         }
@@ -83,25 +75,24 @@ namespace OrderManagementAPI.Controllers
         public async Task<IActionResult> GetOrderById(int id)
         {
             var stopwatch = Stopwatch.StartNew();
-            var correlationId = _correlationIdAccessor.GetCorrelationId();
 
-            _logger.LogInformation($"[{correlationId}] HTTP GET /api/orders/{id} called.");
+            _logger.LogInformation($"HTTP GET /api/orders/{id} called.");
 
             var order = await _orderService.GetOrderByIdAsync(id);
             stopwatch.Stop();
 
             if (order == null)
             {
-                _logger.LogWarning($"[{correlationId}] Order with ID {id} not found. Execution time: {stopwatch.ElapsedMilliseconds} ms.");
+                _logger.LogWarning($"Order with ID {id} not found. Execution time: {stopwatch.ElapsedMilliseconds} ms.");
                 return NotFound(new { message = $"Order with id {id} not found." });
             }
 
             // Optionally also log the created order result
-            var responseJson = JsonSerializer.Serialize(order, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-            _logger.LogInformation($"[{correlationId}] Order {id} fetched successfully. Execution time: {stopwatch.ElapsedMilliseconds} ms. Response: {responseJson}");
+            //var responseJson = JsonSerializer.Serialize(order, new JsonSerializerOptions
+            //{
+            //    WriteIndented = true
+            //});
+            _logger.LogInformation($"Order {id} fetched successfully. Execution time: {stopwatch.ElapsedMilliseconds} ms. Response: {order}");
             return Ok(order);
         }
 
@@ -110,14 +101,13 @@ namespace OrderManagementAPI.Controllers
         public async Task<IActionResult> GetOrdersForCustomer(int customerId)
         {
             var stopwatch = Stopwatch.StartNew();
-            var correlationId = _correlationIdAccessor.GetCorrelationId();
 
-            _logger.LogInformation($"[{correlationId}] HTTP GET /api/orders/customer/{customerId} called.");
+            _logger.LogInformation($"HTTP GET /api/orders/customer/{customerId} called.");
 
             var orders = await _orderService.GetOrdersForCustomerAsync(customerId);
             stopwatch.Stop();
 
-            _logger.LogInformation($"[{correlationId}] {orders.Count()} orders returned for CustomerId {customerId} in {stopwatch.ElapsedMilliseconds} ms.");
+            _logger.LogInformation($"{orders.Count()} orders returned for CustomerId {customerId} in {stopwatch.ElapsedMilliseconds} ms.");
             return Ok(orders);
         }
     }

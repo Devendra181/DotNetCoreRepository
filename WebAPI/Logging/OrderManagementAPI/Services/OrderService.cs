@@ -9,32 +9,26 @@ namespace OrderManagementAPI.Services
     {
         private readonly OrderManagementDbContext _dbContext;
         private readonly ILogger<OrderService> _logger;
-        private readonly ICorrelationIdAccessor _correlationIdAccessor;
 
         public OrderService(
             OrderManagementDbContext dbContext,
-            ILogger<OrderService> logger,
-            ICorrelationIdAccessor correlationIdAccessor)
+            ILogger<OrderService> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
-            _correlationIdAccessor = correlationIdAccessor;
         }
 
         public async Task<OrderDTO> CreateOrderAsync(CreateOrderDTO dto)
         {
-            // Retrieve the current CorrelationId(if any) using the shared helper.
-            var correlationId = _correlationIdAccessor.GetCorrelationId();
-
             _logger.LogInformation(
-                $"[{correlationId}] Creating order for CustomerId {dto.CustomerId} with {dto.Items?.Count ?? 0} items.");
+                $"Creating order for CustomerId {dto.CustomerId} with {dto.Items?.Count ?? 0} items.");
 
             // 1. Validate Customer (logs use string interpolation with CorrelationId)
             var customer = await _dbContext.Customers.FindAsync(dto.CustomerId);
             if (customer == null)
             {
                 _logger.LogWarning(
-                    $"[{correlationId}] Cannot create order: CustomerId {dto.CustomerId} not found.");
+                    $"Cannot create order: CustomerId {dto.CustomerId} not found.");
                 throw new ArgumentException($"Customer with id {dto.CustomerId} not found.");
             }
 
@@ -42,7 +36,7 @@ namespace OrderManagementAPI.Services
             if (dto.Items == null || dto.Items.Count == 0)
             {
                 _logger.LogWarning(
-                    $"[{correlationId}] Cannot create order: no items provided for CustomerId {dto.CustomerId}.");
+                    $"Cannot create order: no items provided for CustomerId {dto.CustomerId}.");
                 throw new ArgumentException("Order must contain at least one item.");
             }
 
@@ -59,7 +53,7 @@ namespace OrderManagementAPI.Services
                 var missingIdsString = string.Join(", ", missingIds);
 
                 _logger.LogWarning(
-                    $"[{correlationId}] Cannot create order: some products not found or inactive. Missing IDs: {missingIdsString}.");
+                    $"Cannot create order: some products not found or inactive. Missing IDs: {missingIdsString}.");
 
                 throw new ArgumentException("One or more products are invalid or not active.");
             }
@@ -92,13 +86,13 @@ namespace OrderManagementAPI.Services
                 total += lineTotal;
 
                 _logger.LogDebug(
-                    $"[{correlationId}] Added item: ProductId={product.Id}, Quantity={itemDto.Quantity}, UnitPrice={unitPrice}, LineTotal={lineTotal}.");
+                    $"Added item: ProductId={product.Id}, Quantity={itemDto.Quantity}, UnitPrice={unitPrice}, LineTotal={lineTotal}.");
             }
 
             order.TotalAmount = total;
 
             _logger.LogDebug(
-                $"[{correlationId}] Total amount for CustomerId {dto.CustomerId} calculated as {order.TotalAmount}.");
+                $"Total amount for CustomerId {dto.CustomerId} calculated as {order.TotalAmount}.");
 
             // 4. Save to DB with error logging
             try
@@ -107,7 +101,7 @@ namespace OrderManagementAPI.Services
                 await _dbContext.SaveChangesAsync();
 
                 _logger.LogInformation(
-                    $"[{correlationId}] Order {order.Id} created successfully for CustomerId {dto.CustomerId}.");
+                    $"Order {order.Id} created successfully for CustomerId {dto.CustomerId}.");
 
                 // Load navigation properties for mapping (Customer + Items + Product)
                 await _dbContext.Entry(order).Reference(o => o.Customer).LoadAsync();
@@ -123,17 +117,15 @@ namespace OrderManagementAPI.Services
             {
                 _logger.LogError(
                     ex,
-                    $"[{correlationId}] Error occurred while saving order for CustomerId {dto.CustomerId}.");
+                    $"Error occurred while saving order for CustomerId {dto.CustomerId}.");
                 throw; // let controller decide response
             }
         }
 
         public async Task<OrderDTO?> GetOrderByIdAsync(int id)
         {
-            var correlationId = _correlationIdAccessor.GetCorrelationId();
-
             _logger.LogInformation(
-                $"[{correlationId}] Fetching order with OrderId {id}.");
+                $"Fetching order with OrderId {id}.");
 
             var order = await _dbContext.Orders
                 .Include(o => o.Customer)
@@ -145,22 +137,20 @@ namespace OrderManagementAPI.Services
             if (order == null)
             {
                 _logger.LogWarning(
-                    $"[{correlationId}] Order with OrderId {id} not found.");
+                    $"Order with OrderId {id} not found.");
                 return null;
             }
 
             _logger.LogDebug(
-                $"[{correlationId}] Order {order.Id} found for CustomerId {order.CustomerId}.");
+                $"Order {order.Id} found for CustomerId {order.CustomerId}.");
 
             return MapToOrderDto(order);
         }
 
         public async Task<IEnumerable<OrderDTO>> GetOrdersForCustomerAsync(int customerId)
         {
-            var correlationId = _correlationIdAccessor.GetCorrelationId();
-
             _logger.LogInformation(
-                $"[{correlationId}] Fetching orders for CustomerId {customerId}.");
+                $"Fetching orders for CustomerId {customerId}.");
 
             var orders = await _dbContext.Orders
                 .Include(o => o.Customer)
@@ -171,7 +161,7 @@ namespace OrderManagementAPI.Services
                 .ToListAsync();
 
             _logger.LogInformation(
-                $"[{correlationId}] Found {orders.Count} orders for CustomerId {customerId}.");
+                $"Found {orders.Count} orders for CustomerId {customerId}.");
 
             return orders.Select(MapToOrderDto);
         }

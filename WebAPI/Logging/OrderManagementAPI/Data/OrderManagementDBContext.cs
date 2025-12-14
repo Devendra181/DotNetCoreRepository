@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderManagementAPI.Entities;
+
 namespace OrderManagementAPI.Data
 {
     public class OrderManagementDbContext : DbContext
@@ -13,6 +14,9 @@ namespace OrderManagementAPI.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+
+        // DbSet for logging
+        public DbSet<LogEntry> LogEntries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,4 +38,3 @@ namespace OrderManagementAPI.Data
         }
     }
 }
-

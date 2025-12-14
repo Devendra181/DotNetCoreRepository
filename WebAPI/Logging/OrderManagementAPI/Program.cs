@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrderManagementAPI.Data;
+using OrderManagementAPI.Logging;
 using OrderManagementAPI.Middlewares;
 using OrderManagementAPI.Services;
 namespace OrderManagementAPI
@@ -21,7 +22,7 @@ namespace OrderManagementAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Register DbContext using SQL Server provider
+            // Register DbContext for main app usage
             builder.Services.AddDbContext<OrderManagementDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -32,15 +33,21 @@ namespace OrderManagementAPI
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddSingleton<ICorrelationIdAccessor, CorrelationIdAccessor>();
 
-            // Logging Configuration
-            // Remove default logging providers
+            // Bind custom logger options from configuration
+            builder.Services.Configure<TextFileLoggerOptions>(
+                builder.Configuration.GetSection("Logging:File"));
+
+            builder.Services.Configure<DatabaseLoggerOptions>(
+                builder.Configuration.GetSection("Logging:Database"));
+
+            // Clear default providers and re-add Console + Debug
             builder.Logging.ClearProviders();
-
-            // Log output to terminal or command prompt
             builder.Logging.AddConsole();
-
-            // Log output to Visual Studio Debug window
             builder.Logging.AddDebug();
+
+            // Register custom providers via DI so the logging system picks them up
+            builder.Services.AddSingleton<ILoggerProvider, TextFileLoggerProvider>();
+            builder.Services.AddSingleton<ILoggerProvider, DatabaseLoggerProvider>();
 
             // Build the Application
             var app = builder.Build();
